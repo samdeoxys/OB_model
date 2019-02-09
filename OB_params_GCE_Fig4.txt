@@ -1,0 +1,106 @@
+Path Kay/GCExcitability
+dt 0.1
+tsim 700
+tinit 0.1
+tfinal 700
+Inoise 0.013
+Wmin 0.0134
+Respiration false
+RespFreq 5
+SpikeV 65e-3
+extparam 1.25
+
+nmitral 45
+ngradist 720
+ngraprox 720
+NoiseMit 0.001
+NoiseGradist 0.001
+NoiseGraprox 0.0005
+hCaflag true
+rhoCaVDCC 100
+rhoCaNMDA 50 
+ExFrac 1
+DistalON true
+ProximalON true
+GraGracon false
+CChanceGraMit 0.3
+CChanceMitGraProx 0.2
+CChanceGraGra 0
+PCinputON false  
+CollateralON true
+PCtype sine
+PCparam1 0
+PCparam2 0
+PCparam3 0
+PCparam4 3.1416
+PCnoise 0.05
+Mg_conc 1
+eta 0.28
+gamma 0.016
+
+wMod 0
+
+gMod 0
+EMod 0e-3
+
+NEURONS
+
+Mitral
+tau 7
+tauAMPA1 1
+tauAMPA2 2
+tauGABA1 0.5
+tauGABA2 5
+EAMPA 0e-3
+EGABA -75e-3
+gmaxAMPA 15e-3
+gmaxGABA 1
+Vrest -70e-3
+Vhyper -80e-3
+FThresh -63e-3
+wGABAGR 0.008
+wGABAGRSP 0.02
+
+GraDistal
+tau 4
+tauAMPA1 2
+tauAMPA2 3
+tauNMDA1 4
+tauNMDA2 75
+tauVDCC 18
+EAMPA 0e-3
+ECa 100e-3
+gmaxAMPA 0 
+Vrest -0.074
+Vhyper -80e-3
+CCaTh 1.5
+wAMPAMI 0.024
+wNMDAMI 0.04
+wVDCCMI 200
+wIntraDist 64
+tauCa 5
+CCaR 0
+
+
+GraProximal
+tau 4
+tauPROX1 0.5
+tauPROX2 1
+tauNMDA1 2
+tauNMDA2 50
+tauGABA1 1
+tauGABA2 2
+EAMPA 0e-3
+EGABA -75e-3
+gmaxAMPA 0
+gmaxGABA 30e-3
+Vrest -0.074
+Vhyper -80e-3
+FThresh 10
+wGABAGR 0.6
+wIntraProx 150
+wAMPAMI 0.024
+wNMDAMI 0.04
+spikelag 1
+
+end
