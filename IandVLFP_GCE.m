@@ -30,9 +30,12 @@ function [Mitral GraProximal GraDistal param InputCurrent MitLFPs GraDistLFPs] =
     Mitral_filtered = zeros(nmit,length(Mitral(1).V));
     for n = 1:nmit
         Gradistmit_filtered(n,:) = InputCurrent.Igradistmit(n,:); %+ InputCurrent.Igraspmit(n,:); %[[Sam]] updated to include spike dependent gaba, no longer in use
-        Gradistmit_filtered(n,:) = smoothdata(Gradistmit_filtered(n,:),'movmean',50);
+        %Gradistmit_filtered(n,:) = smoothdata(Gradistmit_filtered(n,:),'movmean',50);
+        Gradistmit_filtered(n,:) = smooth(Gradistmit_filtered(n,:),50);
+        
         Mitral_filtered(n,:) = Mitral(n).V;
-        Mitral_filtered(n,:) = smoothdata(Mitral_filtered(n,:),'movmean',50); 
+        %Mitral_filtered(n,:) = smoothdata(Mitral_filtered(n,:),'movmean',50); 
+        Mitral_filtered(n,:) = smooth(Mitral_filtered(n,:),50); 
     end
     
     % ILFP
@@ -56,10 +59,12 @@ function [Mitral GraProximal GraDistal param InputCurrent MitLFPs GraDistLFPs] =
     Gradist_filtered = zeros(ngra,length(GraDistal(1).V));
     for n = 1:ngra
         MitGradist_filtered(n,:) = (InputCurrent.ImitgradistAMPA(n,:)+InputCurrent.ImitgradistNMDA(n,:)+InputCurrent.ImitgradistVDCC(n,:)) / 3; %%[[Sam]], the sum of all synaptic currents into gradist
-        MitGradist_filtered(n,:) = smoothdata(MitGradist_filtered(n,:),'movmean',50);
+        %MitGradist_filtered(n,:) = smoothdata(MitGradist_filtered(n,:),'movmean',50);
+        MitGradist_filtered(n,:) = smooth(MitGradist_filtered(n,:),50); % using smooth for compatibility with earlier versions, but need curve fitting toolbox
         
         Gradist_filtered(n,:) = GraDistal(n).V;
-        Gradist_filtered(n,:) = smoothdata(Gradist_filtered(n,:));
+        %Gradist_filtered(n,:) = smoothdata(Gradist_filtered(n,:));   
+        Gradist_filtered(n,:) = smooth(Gradist_filtered(n,:),50);
     end
     GraDistLFPs.VG = sum(Gradist_filtered,1)/ngra; %
     GraDistLFPs.MitGradistGlobal = sum(MitGradist_filtered,1) / ngra;%

@@ -10,6 +10,8 @@ function [figH,varargout] = plot_power(MitLFPs,GraDistLFPs,sampf,timevec)
 % Output:
 % figH = figure handle of the power spectrum
 % varargout{1} = the FFT of IPSP on MC, optional output
+% varargout{2} = NFFT, the number of points for FFT
+% varargout{3} = f, the vector of frequencies
 fs = 16;% fontsize
 faxis = [15 120];
 % params for FFT %
@@ -43,5 +45,7 @@ legend boxoff
 xlabel('Frequency (Hz) ')        
 
 varargout{1} = mitFFTGV;
+varargout{2} = NFFT;
+varargout{3} = f;
 
 end

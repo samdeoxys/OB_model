@@ -76,7 +76,7 @@ ratio = 1; %0.3
 
 
 % slider that needs to be changed whenever looping on a different variable
-slider.value = gmod; %Vrestslider; %
+slider.value = gmodslider; %Vrestslider; %
 slider.name = 'gmod';%[num2str(ratio),' of vrest'];
 %% Starting the Loop
 masterdata = struct;
@@ -142,7 +142,7 @@ for i=1:length(slider.value)
             if sum(InputCurrent.CCaBase > GraDistal(1).CCaTh)>0 % warning when the model breaks down
                 "CCaBase bigger than CCaTh, something is wrong"
             end
-            [figH,mitFFTGV] = plot_power(MitLFPs,GraDistLFPs,sampf,timevec);
+            [figH,mitFFTGV,NFFT,f] = plot_power(MitLFPs,GraDistLFPs,sampf,timevec);
              if size(slider.value,1)==1 % if not it means multiple sweep; only generate T, the table for parameter vs peak power and frequency, when single sweep
                   fig_title = [slider.name,'=',num2str(slider.value(i))]; 
                   T.(slider.name)(i) = slider.value(i);

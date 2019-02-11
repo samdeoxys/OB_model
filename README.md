@@ -1,8 +1,9 @@
 # OB_model
 This is a biophysical model consisting of olfactory bulb mitral and granule cells. The granule cells are modeled as a dendritic and somatic compartment. The dendritic compartment forms dendrodendritic synapses with a subpopulation of the mitral cells. The somatic compartment receives input from a proportion of mitral cells and top down input modeled simplisticly. The mitral cell receives external input modeled as constant currents.
 
+## Dependency
+Code is designed to run in MATLAB R2018a. Some functions require `Curve Fitting Toolbox`. Can only run after MATLAB R2014b because of the `histcounts` function.
 
-Code is designed to run in MATLAB R2018a
 ## How to use
 The parameters are stored in `OB_params_GCE.txt` and can be updated.    
 
