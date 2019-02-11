@@ -5,11 +5,12 @@ This is a biophysical model consisting of olfactory bulb mitral and granule cell
 Code is designed to run in MATLAB R2018a. Some functions require `Curve Fitting Toolbox`. Can only run after MATLAB R2014b because of the `histcounts` function.
 
 ## How to use
-The parameters are stored in `OB_params_GCE.txt` and can be updated.    
+- Download and unzip all the files
+- The parameters are stored in `OB_params_GCE.txt` and can be updated.    
 
-To run it once and plot the power spectrum of simulated LFP oscillations, run the script `just_run.m`. The `input_file` is by default `OB_params_GCE.txt`. Make sure the directory is in MATLAB's path.     
+- To run it once and plot the power spectrum of simulated LFP oscillations, run the script `just_run.m`. The `input_file` is by default `OB_params_GCE.txt`. Make sure the directory is in MATLAB's path.     
 
-To run it with single/multiple-parameter sweep, run the script `run_with_sweep.m` and follow the detailed instruction inside the script.    
+- To run it with single/multiple-parameter sweep, run the script `run_with_sweep.m` and follow the detailed instruction inside the script.    
 
 ## Main functions
 `InitNetwork_GCE.m`         -       initialize simulation parameters.     
