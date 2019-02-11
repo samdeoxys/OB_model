@@ -1,4 +1,14 @@
 function varargout = analyze_firing(mit,fig_title)
+% Plot the histogram of the mean, std and coefficient of variation of MC
+% firing rates across the MC population
+% --Sam Zheng--
+% Input:
+% mit       = struct array of mitral cells, returned by NeuroActivity.m
+% fig_title = title for the plot
+% (optional)Output:
+% stat_Smit = a struct of the mean, std, and coefficient of variation of MC
+% firing rates across the MC population
+
 trim=1000;
 figure('un','norm','pos',[0.01,0.1,0.45,0.9])
 Smit = get_neuron_field(mit,'S');

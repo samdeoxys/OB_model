@@ -1,6 +1,9 @@
 function [numhighext,varargout] = get_numhighext(Mitral,GraDistal,varargin)
-% nmit * 2 matrix: column 1 the number of high ext gc connected, column 2
-% low ext gc
+% --Sam Zheng--
+% For situations that involve having a proportion of GCs with high
+% excitability and and the rest low excitability
+% numhighext: nmit * 2 matrix: column 1 the number of high excitability GCs connected, column 2
+% low excitability GCs connected
 % varargin is Prelease, varargout is total prelease categorized into low
 % ext group and high ext group
 nmit = length(Mitral);

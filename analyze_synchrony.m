@@ -1,9 +1,16 @@
 function varargout = analyze_synchrony(mit,gc,taudist,fig_title)
+% ---Sam Zheng---
 %plots: histogram of equilibrium Vgc, with the mean; 
 %       histogram of pairwise correlation of Vgcd, with the mean,  
 %       histogram of pairwise correlation of convolved Smit, with the mean
 %       histogram of pairwise distance of convolved Smit, with the mean
-%output: mit_dist ---- mean distance of convolved spike train
+%input : 
+% mit = struct array Mitral 
+% gc = struct array GraDistal or GraProximal
+% taudist = tau for calculating the distance function
+% fig_title = title of the figure
+%output: 
+% out ---- a struct of the mean of the histograms
 out = struct();
 nmit = length(mit);
 ngc = length(gc);

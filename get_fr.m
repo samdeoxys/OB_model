@@ -1,4 +1,11 @@
 function fr_mat = get_fr(S,varargin)
+%%% ----Sam Zheng---
+%%% calculate the PSTH matrix for a struct array of neurons that can spike
+%%% input:
+%%% S -- a struct array of neurons that can spike
+%%% (optional) edges -- edges for histcounts
+%%% output: 
+%%% fr_mat -- psth matrix, ncells * nbins
 if exist(varargin)
     edges = varargin{1}
 else

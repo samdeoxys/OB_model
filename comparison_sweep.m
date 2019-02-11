@@ -1,4 +1,6 @@
-%%% For comparing the sweep results for two different states
+%%% --Sam Zheng--
+%%% For comparing the sweep results for two different states, specified by
+%%% the struct switchslider. eg. PCinputOn = true vs false
 
 clear Mitral GraProximal GraDistal param MitLFPs GraDistLFPs masterdata
 input_file = 'OB_params_GCE_Fig4.txt';

@@ -1,4 +1,6 @@
 function h = plot_mitral(Mitral,InputCurrent,inds)
+%%% ---Sam Zheng---
+%%% plot the input currents to Mitral cells specified by inds
 figure('un','norm','pos',[0.1,0.1,0.6,0.7])
 hold on
 L = [];

@@ -1,6 +1,8 @@
 function [mean_high,mean_low] = high_low_compare(GraDistal,InputCurrent,field)
-% use GraDistal to get the high/low indices
-% S.(field) is the thing to be compared
+% --Sam Zheng--
+% compare the mean of the currents received by the the two groups of GCD
+% with high vs low excitability
+% InputCurrent.(field) is the thing to be compared
 vrest_vec = [GraDistal.Vrest];
 low = mode(vrest_vec);
 low_inds = find(vrest_vec==low);

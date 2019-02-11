@@ -1,4 +1,15 @@
 function [corr_mean,varargout] = get_synchrony(N,tau,showfig)
+%--Sam Zheng--
+% similar to get_dist, first convolve the spike trains, but then calculate
+% the pairwise correlation instead of distance
+% input:
+% N - struct array of neurons
+% tau - parameter for the kernel
+% showfig - if 1, display the histogram
+% output:
+% corr_mean - mean of the pairwise correlations
+% (optional) corr_mat - the matrix of pairwise correlations
+
 trim = 1000;
 Smat = get_neuron_field(N,'S');
 convSmat = Smat;

@@ -1,12 +1,10 @@
 function [Mitral GraProximal GraDistal param] = OB_network_GCE(inputFile)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Boleslaw Osinski 2015
+% Sam Zheng 2018
 %
 % This is a modification of code originally developed by Licurgo de
-% Almeida 2013
-%
-% Publication describing the model...
+% Almeida 2013 and modified by Boleslaw Osinski 2015
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -16,9 +14,8 @@ function [Mitral GraProximal GraDistal param] = OB_network_GCE(inputFile)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % OUTPUTS:
-% Mitral, GraProximal, GraDistal - structures containing simulated neurons
+% Mitral, GraProximal, GraDistal - structures containing initialized neurons
 % param      -  model parameters
-% InputCurrent - structure containing all the input currents
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -91,10 +88,10 @@ tic;
     end
 
     
-    fclose(fid1); % Close input file
-    fname = inputFile(1:end - 3); %cut the file type in the name and change with mat, to create an empty mat with the same name
+    fclose(fid1); 
+    fname = inputFile(1:end - 3); 
     fname = strcat(fname,'mat');
-    save(fname,'Mitral','GraProximal','GraDistal','param'); %%put these variables in the mat file. 
+    save(fname,'Mitral','GraProximal','GraDistal','param'); 
 end
 
 function param = SetNetworkParameters(param,str)
@@ -103,13 +100,13 @@ function param = SetNetworkParameters(param,str)
 %-----------OB--------------OB----------------OB--------------------------
 %
 % This function sets the parameters for the different neurons
-%
+% Modified by Sam Zheng 2018-2019
 % Modified by Boleslaw Osinski on 06/14/2013
 %
 % Licurgo de Almeida
 % 12/20/2010
 %
-% Information not related with the parameters of different neuros.
+% Information not related with the parameters of different neurons.
 % Path: path where we save input and output file
 % dt: timestep (in ms)
 % tsim: simulation time (in ms)
@@ -120,14 +117,13 @@ function param = SetNetworkParameters(param,str)
 % nGraprox: number of granule cell soma
 % GraGracon = if true, granule cells connect to each other
 % DistalON = if true graded inhibitory distal Granule dendrites are present
-% ProximalON = if true spiking inhibitory proximal Granule soma are present
+% ProximalON = if true proximal Granule soma are present
 % BulbH = Bulb height (in distance units)
 % BulbW = Bulb width (in distance units)
 % NoiseMit = Mitral cell noise std
 % NoiseGraprox = Granule proximal dendrite noise std
 % NoiseGradist = Granule distal dendrite noise std
 % hCaflag = if true, h (VDCC innactiavtion) depends on [Ca]
-% rhoCa = proportionality constant between [Ca] and ICa
 % ExFrac = fraction of excited dGCs
 % Respiration = if true, the input is modulated by an oscillation
 % representing the respiration
@@ -137,6 +133,18 @@ function param = SetNetworkParameters(param,str)
 % SpikeV = Spike voltage
 % CChanceGraMit = Chance of connection between Gra and Mit
 % CChanceGraGra = Chance of connection between Gra
+% [modified by Sam Zheng]
+% rhoCaVDCC = proportionality constant between [Ca] and IVDCC
+% rhoCaNMDA = proportionality constant between [Ca] and INMDA
+% PCinputON = if true GC soma receives top down input from PC
+% PCtype = specifies the type of the PC input, 'constant'/'sine'/'poisson'
+% PCparam1-4 = parameters for PCinput
+% extparam = strength for external input on Mitral Cells
+% PCnoise = noise for PCinput
+% Mg_conc, eta, gamma = parameters for INMDA
+% wMod = the proportion of leaky current blocked by modulation
+% gMod = the synaptic weight of the modulation current on GC (temp)
+% EMod = the reversal potential for modulation current on GC (temp)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 str_aux = 1;
@@ -290,7 +298,8 @@ function N = SetNeuronParameters(N,ncells,str)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % This function set the parameters for the different neurons
-% Modified by Boleszek Osinski on 06/18/2013
+% Modified by Sam Zheng 2018-2019
+%
 %
 %
 % * tau = charging time constant of the neuron (ms). ms (not s) is the basic time unit in this program.
@@ -462,15 +471,18 @@ switch lower(ParName)
             N(ii).wIntraProx = str2double(ParValue); %[[Sam]]
         end
         
-    case 'wgabagrsp'
-        for ii = 1:ncells
-            N(ii).wGABAGRSP = str2double(ParValue); %[[Sam]]
-        end
+
         
     case 'tauca'
         for ii=1:ncells
             N(ii).tauCa = str2double(ParValue);
         end
+    %[[Sam]] Not uesful in the current version
+    case 'wgabagrsp'
+        for ii = 1:ncells
+            N(ii).wGABAGRSP = str2double(ParValue); 
+        end
+        
     case 'ccar'
         for ii=1:ncells
             N(ii).CCaR = str2double(ParValue);

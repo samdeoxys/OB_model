@@ -1,7 +1,15 @@
 function [dist_mean,varargout]=get_dist(N,taudist)
+%%% ---Sam Zheng---
+%%% Convolve spike trains of a struct array of neurons with an alpha
+%%% function and compute the pairwise distances, and the mean of the
+%%% distances.
+%%% Input: 
+%%% N = struct array of neurons that can spike
+%%% taudist = parameter for the convolution kernel
+%%% Output:
+%%% dist_mean = the mean of the pairwise distances
+%%% (optional) dist = the vector of all the pairwise distances
 allcomb = combnk(1:length(N),2);
-%allcombmask = rand(length(allcomb),1);
-%allcomb = allcomb(allcombmask <0.01,:);
 numcomb = size(allcomb,1);
 dist = zeros(1,numcomb);
 for j =1:numcomb

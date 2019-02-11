@@ -1,6 +1,12 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % MAIN FUNCTION
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Created by Licurgo de Almeida and Modified by Sam Zheng
+% The function takes in the initialized neurons and param structs and
+% generate connectivity matrices, the time series of membrane potential, spikes, synaptic currents,
+% activation variables for synaptic currents and calcium dynamics for the
+% structs.
+
 
 function [Mitral GraProximal GraDistal param InputCurrent] = NeuroActivity(Mitral,GraProximal,GraDistal,param)
 
@@ -36,18 +42,16 @@ end
 
 %%%%%   OB   %%%%%
 
-nds = param.nGradist/param.nGraprox; % number of distal synapses per granule cell
-%????
-
 
     % Each MC connected to random subset CChanceGraMit*nGradist dGCs
+    % reciprocally.
     % In this scheme each MC is connected to exactly CChanceGraMit*nGradist
     % dGCs, but each dGC can be connected to a range of MCs
-        rng(2)
+        rng(2) % [Sam] rng can be taken away in the final version to introduce variability
         MatGradistMit = SetConnections(param.nMitral,param.nGradist,param.CChanceGraMit);
         
         MatMitGradist = MatGradistMit'; % reciprocal synapses
-        
+    % MC axon collateral on GC soma, not reciprocal
         rng(3)
         MatMitGraprox = SetConnections(param.nGraprox,param.nMitral,param.CChanceMitGraProx); %[[Sam]] connection mat for MC to graprox, for axon collateral
         MatGraproxMit = MatMitGraprox';
@@ -63,11 +67,11 @@ nds = param.nGradist/param.nGraprox; % number of distal synapses per granule cel
     wGABASPMit = zeros(param.nMitral,1);
     for ii = 1:param.nMitral
         wGABAMit(ii) = Mitral(ii).wGABAGR;
-        wGABASPMit(ii) = Mitral(ii).wGABAGRSP; %%[[Sam]] for gc spike dependent gaba
+        wGABASPMit(ii) = Mitral(ii).wGABAGRSP; %%[[Sam]] for gc spike dependent gaba, no longer in use
     end
     wGradistMit = SetWeights(MatGradistMit,wGABAMit);
     
-    wGraproxMit = SetWeights(MatGraproxMit,wGABASPMit); %%[[Sam]] for gc spike dependent gaba
+    wGraproxMit = SetWeights(MatGraproxMit,wGABASPMit); %%[[Sam]] for gc spike dependent gaba, no longer in use
     
     wAMPAGradist = zeros(param.nGradist,1);
     wNMDAGradist = zeros(param.nGradist,1);
@@ -97,13 +101,13 @@ nds = param.nGradist/param.nGraprox; % number of distal synapses per granule cel
 %     wProxProx = SetWeights(MatProxProx,wGABAGraProx);
     
     if strcmp(param.PCtype,'poisson')
-        wpcinput = param.PCparam2*wAMPAGraProx .* eye(param.nGraprox); %[7.0] weight of poisson pcinput; important: .*!; diagnal matrix so that in SetI dimensions are correct
+        wpcinput = param.PCparam2*wAMPAGraProx .* eye(param.nGraprox); %[Sam] weight of poisson pcinput; important: .*!; diagnal matrix so that in SetI dimensions are correct
     else
         %wpcinput = param.PCparam2 * eye(param.nGraprox).*sort(rand(param.nGraprox,1),'descend'); %[7.0] the problem with weight coded with uniform distribution is the largest and smallest really different; consider gaussian with different mean later!
         wpcinput = param.PCparam2 * eye(param.nGraprox); % [Sam]without randomness
     end
     
-    %[7.0] PCparam2 in the poisson case is for scaling
+    %[Sam] PCparam2 in the poisson case is for scaling
     %param.wpcinput = wpcinput; % for external access and debugging
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Set Mitral cells parameters and variables
@@ -116,13 +120,11 @@ Iext_matrix = Vmit; % Initialize external inputs to MCs, (all 0 for now)
 
 refracmit = 3; % Refractory period after firing (ms)
 
-Restmit = zeros(param.nMitral,1); % resting potential   ???why 0 and why is it an array?
+Restmit = zeros(param.nMitral,1); % resting potential   
 Threshmit = Restmit; % current firing threshold
-Hypermit = Restmit; % hyperpolarization potential  ??? why all Restmit??? to initialize?? not necessary?
+Hypermit = Restmit; % hyperpolarization potential 
 taumit = Restmit; % tau neuron
-countrefracmit = Restmit; % Refractory period counter. This is assumed to
-% be the same for all Mitral cells so we don't need to add it to the for
-% below.
+countrefracmit = Restmit; % Refractory period counter. 
 gmaxAMPAmit = Restmit; % Max AMPA conductance
 tauAMPA1mit = Restmit; % AMPA's rising tau.
 tauAMPA2mit = Restmit; % AMPA's falling tau.
@@ -160,10 +162,9 @@ Vmit(:,1) = Restmit;
 Vmit_nospike = Vmit;
 
 
-% GABA time counter. This variable starts with a very negative value just
-% to make sure that the currents will be = 0. Only used if paramal.ProxON is
-% true and param.DistalON is false (i.e. spiking inhibition)
-tGABA0mit = zeros(param.nGradist,round(param.tsim / param.dt)) - 10000000; %?????
+% % GABA time counter. This variable starts with a very negative value just
+% % to make sure that the currents will be = 0. 
+ tGABA0mit = zeros(param.nGradist,round(param.tsim / param.dt)) - 10000000; 
 
 Igradistmit = zeros(param.nMitral,1); % Input coming from Granule cells
 Igradistmit_matrix = zeros(param.nMitral,round(param.tsim / param.dt));
@@ -175,7 +176,7 @@ Vnoisemit_matrix = zeros(param.nMitral,round(param.tsim / param.dt));
 Igraproxmit = zeros(param.nMitral,1); % Input coming from Granule cells
 Igraproxmit_matrix = zeros(param.nMitral,round(param.tsim / param.dt));
 
-% [[Sam]] for spike dependent gaba
+% [[Sam]] for spike dependent gaba, no longer in use
 Igraspmit = zeros(param.nMitral,1);
 Igraspmit_matrix = zeros(param.nMitral,round(param.tsim/param.dt));
 
@@ -188,38 +189,32 @@ maxgGABAmit = getmaxg(param.dt,tauGABA1mit,tauGABA2mit); % Get max conductance
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % Set Proximal Granule cell parameters and variables
+% % Set Proximal Granule cell parameters and variables [[Sam]]
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if param.ProximalON == true
   Vgraprox = zeros(param.nGraprox,round(param.tsim / param.dt));
   Sgraprox = Vgraprox;
-% % Probability of each cell firing
-  Pfiregraprox = Vgraprox;
-% 
+% % % Probability of each cell firing
+%   Pfiregraprox = Vgraprox;
+ 
   refracgraprox = 5; % Refractory period after firing (ms)
-% 
   Restgraprox = zeros(param.nGraprox,1); % resting potential
   Threshgraprox = Restgraprox; % current firing threshold
   Hypergraprox = Restgraprox; % hyperpolarization potential
   taugraprox = Restgraprox; % tau neuron
-  countrefracgraprox = Restgraprox; % Refractory period counter. This is assumed to
-% % be the same for all Granule cells so we don't need to add it to the for below.
-% 
+  countrefracgraprox = Restgraprox; % Refractory period counter. 
   spikelag = Restgraprox; %[[Sam]]
   countlag = Restgraprox; %[[Sam]]
-  gmaxAMPAgraprox = Restgraprox; % Max AMPA conductance
-% 
+  gmaxAMPAgraprox = Restgraprox; % Max AMPA conductance 
   tauPROX1 = Restgraprox; % AMPA's rising tau.
   tauPROX2 = Restgraprox; % AMPA's falling tau.
-% 
   EAMPAgraprox = Restgraprox; % AMPA's Nernst potential.
   gmaxGABAgraprox = Restgraprox; % Max GABA conductance
   tauGABA1graprox = Restgraprox; % GABA's rising tau.
   tauGABA2graprox = Restgraprox; % GABA's falling tau.
   EGABAgraprox = Restgraprox; % GABA's Nernst potential.
   ENMDAgraprox = Restgraprox; % [[Sam]]
-% 
-% 
+  
   for ii = 1:param.nGraprox
       Restgraprox(ii) = GraProximal(ii).Vrest;
       Hypergraprox(ii) = GraProximal(ii).Vhyper;
@@ -236,18 +231,16 @@ if param.ProximalON == true
       EGABAgraprox(ii) = GraProximal(ii).EGABA;
       ENMDAgraprox(ii) = GraProximal(ii).EAMPA;
       
-      Threshgraprox(ii) = GraProximal(ii).FThresh; %[[Sam]] proximal firing threshold, for spike dependent gaba
-    %  Threshgraprox(ii) = GraProximal(ii).CCaTh; %[Sam]does proximal has any
-    %  use for CCaTh?
+      Threshgraprox(ii) = GraProximal(ii).FThresh; %[[Sam]] proximal firing threshold, for spike dependent gaba, no longer in use
       GraProximal(ii).Connectionsmit =MatGraproxMit(:,ii)';
-      spikelag(ii) = GraProximal(ii).spikelag; %[Sam] the time it has to be above threshold to fire;
+      spikelag(ii) = GraProximal(ii).spikelag; %[Sam] the time it has to be above threshold to fire, no longer in use;
   end
-% 
+
 % % Initialize Granule cells potentials
   Vgraprox(:,1) = Restgraprox;
   Vgraprox_nospike = Vgraprox;
 % 
-% % bulbar input current to graprox
+% % mitral input current to graprox
   Idistprox = zeros(param.nGraprox,1); % Input coming from dist to prox [add semicolon]
   Idistprox_matrix = zeros(param.nGraprox,round(param.tsim / param.dt));
   ImitgraproxAMPA = zeros(param.nGraprox,1); %[[Sam]]
@@ -261,7 +254,7 @@ if param.ProximalON == true
   
   Vnoisegraprox = zeros(param.nGraprox,1); %[[Sam]]
   Vnoisegraprox_matrix = zeros(param.nGraprox,round(param.tsim / param.dt));
-% 
+ 
 % % input voltage (for direct distprox summing)
   Vdistprox = zeros(param.nGraprox,1); % V input coming from dist to prox
   Vdistprox_matrix = zeros(param.nGraprox,round(param.tsim / param.dt));
@@ -285,9 +278,7 @@ if param.ProximalON == true
  tGABA0graprox = zeros(param.nGraprox,round(param.tsim / param.dt)) - 10000000;
  Igragra = zeros(param.nGraprox,1); % Input coming from other granule cells
  Igragra_matrix = zeros(param.nGraprox,round(param.tsim / param.dt)); %uncommented so that it is defined in calculating graprox membrane potential
-% 
-% maxgGABAgraprox = getmaxg(param.dt,tauGABA1graprox,tauGABA2graprox); % Get max conductance amplitude
-% 
+  
 % % Sam: PC input to graprox
   Ipcgraprox = zeros(param.nGraprox,1);
   Ipcgraprox_matrix = zeros(param.nGraprox,round(param.tsim / param.dt));
@@ -373,7 +364,7 @@ end
 % 1-ExFrac subpopulation of GCs in unexcited state
 if param.ExFrac < 1
     Restgradist((round(param.ExFrac*param.nGradist)+1):end) = -75e-3;
-end %???
+end 
 
 % Initialize Granule cells potentials
 Vgradist(:,1) = Restgradist;
@@ -392,7 +383,7 @@ ImitgradistNMDA_matrix = zeros(param.nGradist,round(param.tsim / param.dt));
 
 Mg_block_gradist = zeros(param.nGradist,1); %[Sam]
 Mg_block_gradist_matrix = zeros(param.nGradist,round(param.tsim / param.dt));
-% L-type Ca current
+% N-type Ca current
 ImitgradistVDCC = zeros(param.nGradist,1);
 ImitgradistVDCC_matrix = zeros(param.nGradist,round(param.tsim / param.dt));
 
@@ -400,7 +391,7 @@ ImitgradistVDCC_matrix = zeros(param.nGradist,round(param.tsim / param.dt));
 Vnoisegradist = zeros(param.nGradist,1); %[[Sam]]no noise condition
 Vnoisegradist_matrix = zeros(param.nGradist,round(param.tsim / param.dt));
 
-% Imodgradist
+% modulation current (testing) [Sam]
 Imodgradist = zeros(param.nGradist,1);
 Imodgradist_matrix = zeros(param.nGradist,round(param.tsim / param.dt));
 
@@ -429,42 +420,23 @@ for ii = 1:length(Cin)
     end
 end
 
-% plot LHS and RHS
-% subplot(2,1,1)
-% plot(Cin,LHS(1,:),'k.',Cin,EVDCCgradist,'k--')
-% set(gca,'fontsize',16)
-% legend('LHS','RHS','location','best')
-% % plot |LHS - RHS|
-% subplot(2,1,2)
-% plot(Cin,abs(LHS(1,:) - EVDCCgradist),'k')
-% set(gca,'fontsize',16)
-% title('abs(LHS - RHS)')
-% xlabel('[Ca] (\muM)')
 
-% old solution (without explicit [Ca] dpendence in Eca)
-% CCaBase = sqrt(1e-4 * nmit_per_gra .* param.rhoCa .* wVDCCGradist .* mbarrest .* (EVDCCgradist - Restgradist));
-% Note: the 1e-4 comes from the definition of h for N-type current:
-%    h = 1e-4/(1e-4 + [Ca])
-
-% new solution (with explicit [Ca] dpendence in Eca)
+% solution (with explicit [Ca] dpendence in Eca)
 CCaBase = zeros(param.nGradist,1);
 if wVDCCGradist > 0
     for ii = 1:param.nGradist
-    % mind = find(abs(LHS(ii,:) - EVDCCgradist) == min(abs(LHS(ii,:) - EVDCCgradist)));
-
-    
-    index = find(abs(LHS(ii,:) - EVDCCgradist) == min(abs(LHS(ii,:) - EVDCCgradist))); %[[Sam]] took what's previously in Cin(), and assigned it to index; doesnt really matter
-    if sum(wMitGradistVDCC(ii,:))~=0 %prevent bug caused by gc with no connected mc
-        try
-        CCaBase(ii) = Cin(index);
-        catch
-            ii
-            abs(LHS(ii,:) - EVDCCgradist)
-            min(abs(LHS(ii,:) - EVDCCgradist))
-            find(abs(LHS(ii,:) - EVDCCgradist) == min(abs(LHS(ii,:) - EVDCCgradist)))
-        end
-    else
-        CCaBase(ii) = 0;
+        index = find(abs(LHS(ii,:) - EVDCCgradist) == min(abs(LHS(ii,:) - EVDCCgradist))); 
+        if sum(wMitGradistVDCC(ii,:))~=0 %prevent bug caused by gc with no connected mc [Sam]
+            try
+            CCaBase(ii) = Cin(index);
+            catch
+                ii
+                abs(LHS(ii,:) - EVDCCgradist)
+                min(abs(LHS(ii,:) - EVDCCgradist))
+                find(abs(LHS(ii,:) - EVDCCgradist) == min(abs(LHS(ii,:) - EVDCCgradist)))
+            end
+        else
+            CCaBase(ii) = 0;
     end
 end
 end
@@ -472,7 +444,6 @@ end
 
 CCa(:,1) = 0.1; %[[Sam]]initializing CCaBase
 
-%%%%%%%%????%%%%%%%%%
 if sum(wVDCCGradist) > 0
     EVDCCgradistBase = (RT/(z*F))*log(Cout./CCaBase);
     WMGVDCCsum = zeros(param.nGradist,1);
@@ -535,9 +506,6 @@ for tt = 2:round(param.tsim / param.dt)
 %    Iext = Respiration(tt) .* Iext_max(:,tt);
     
     Iext = Iext_matrix(:,tt); %[[Sam]] Included respiration effect in the function for setting external I
-%     Iext = sc(tt) * Respiration(tt) .* Iext_max(:,tt);
- %   Iext_matrix(:,tt) = Iext(:);
-    
             
     % Get Granule graded inputs to Mitral cells
     Igradistmit(:) = SetInoSpike_GraMit(gmaxGABAmit,Prelease_matrix(:,tt-1),EGABAmit,Vmit_nospike(:,tt - 1),...
@@ -547,30 +515,21 @@ for tt = 2:round(param.tsim / param.dt)
     Vnoisemit_matrix(:,tt) = Vnoisemit(:);
     
     
-    % [[Sam]] for spike dependent gaba to MC
-    Igraspmit(:) = SetI(tauGABA1mit(1),tauGABA2mit(1),t,tGABA0mit(:,tt),maxgGABAmit(1),...
-       wGradistMit,EGABAmit(1),Vmit_nospike(:,tt - 1)); % the spike dependent gaba to MC still uses wGradistMit instead of wGraproxMit, which is only used for axon collateral
-    Igraspmit_matrix(:,tt) = Igraspmit(:);
+    % [[Sam]] for spike dependent gaba to MC, no longer in use
+     Igraspmit(:) = SetI(tauGABA1mit(1),tauGABA2mit(1),t,tGABA0mit(:,tt),maxgGABAmit(1),...
+        wGradistMit,EGABAmit(1),Vmit_nospike(:,tt - 1)); % the spike dependent gaba to MC still uses wGradistMit instead of wGraproxMit, which is only used for axon collateral
+     Igraspmit_matrix(:,tt) = Igraspmit(:);
     % Mitral cell potential
-    
     % Forwards Euler
     
     Vmit(:,tt) = Vmit(:,tt - 1) + (param.dt ./ taumit(:)) .* ...
-        ((Iext(:) + Igradistmit(:) + Igraspmit(:)) - Vmit(:,tt - 1) + Restmit(:) + Vnoisemit); 
-   
-    % Backwards Euler
-    
-%     g_gramit = (((tauGABA1mit(1) * tauGABA2mit(1)) / (tauGABA1mit(1) - tauGABA2mit(1))) *...
-%     (exp(-(t - tGABA0mit(:,tt)) / tauGABA1mit(1)) - exp(-(t - tGABA0mit(:,tt)) / tauGABA2mit(1)))) / maxgGABAmit(1);
-% 
-%     Vmit(:,tt) = (Vmit(:,tt - 1) + (param.dt ./ taumit(1)) .* ((Iext(:) + (wGraMit_scaled * g_gramit) .* EGABAmit(1) + Restmit(:))))...
-%         ./ (1 + (param.dt ./ taumit(1)) .* ((wGraMit_scaled * g_gramit) + 1));
+        ((Iext(:) + Igradistmit(:) + Igraspmit(:)) - Vmit(:,tt - 1) + Restmit(:) + Vnoisemit);
    
     
     % If the neuron fired last cycle, neuron potential hyperpotentializes
-    I = Vmit(:,tt - 1) == param.SpikeV; %pick out the ones that spike at tt-1; so impossible for a step that's too big? (tt-2 smaller than threshold, tt-1 bigger;)
-    Vmit(I,tt) = Hypermit(I); %?? is hyperpolerization potential a fixed value for a particular neuron? so that if it does not spike, it is set to that value
-    Vmit_nospike(:,tt) = Vmit(:,tt); %??what does _nospike mean?
+    I = Vmit(:,tt - 1) == param.SpikeV;
+    Vmit(I,tt) = Hypermit(I); 
+    Vmit_nospike(:,tt) = Vmit(:,tt); 
     
     % I is a vector of 1s or 0s of length ncells
     
@@ -628,18 +587,12 @@ if param.DistalON == true
         wMitGradistNMDA,ENMDAgradist(1),Vgradist(:,tt - 1),param);
     ImitgradistNMDA_matrix(:,tt) = ImitgradistNMDA(:);
     Mg_block_gradist_matrix(:,tt) = Mg_block_gradist(:);
-    % Distal Granule VDCC Current
     
-            % Calcium Concentration variable
+    % Distal Granule VDCC Current
+    % Calcium Concentration variable
     CCa(:,tt) = CCa(:,tt - 1) + (param.dt ./ tauCagradist(:)) .* (param.rhoCaNMDA .*...
           ImitgradistNMDA(:) + param.rhoCaVDCC.*ImitgradistVDCC(:) ...
           - CCa(:,tt - 1) );
-      
-%     % L-type
-%     % % m' = (mbar - m)/taum;
-%    mbar(:) = 1./(1 + exp(-(1e3.*Vgradist(:,tt - 1)+50)./3));
-%    taum(:) = 18 * exp(-((1e3.*Vgradist(:,tt - 1)+45)./20).^2) + 1.5;
-%    h(:,tt) = 0.00045./(0.00045+CCa(:,tt));
 
     % Ntype
     mbar(:) = 1./(1 + exp(-(1e3.*Vgradist(:,tt - 1)+45)./7)); %% [Sam]changing the half activation value from 45!
@@ -674,17 +627,14 @@ if param.DistalON == true
     % NOTE!!! All voltages are in V, not mV, so parameters have
     % to be scaled accordingly!!!
 
-    
-
-
     Vnoisegradist = param.noisegradist .* randn(param.nGradist,1);
     Vnoisegradist_matrix(:,tt) = Vnoisegradist;
     
-    %
+    % [Sam] modulation current (testing)
     Imodgradist = param.gMod.*(param.EMod - Vgradist(:,tt-1));
     Imodgradist_matrix(:,tt) = Imodgradist;
    
-    %fill in helper variables
+    %fill in helper variable ID
     ID(:) = ImitgradistAMPA(:) + ImitgradistNMDA(:) + (ImitgradistVDCC(:) - IVDCCBase) + (1-param.wMod)*(Restgradist(:) +Imodgradist - Vgradist(:,tt - 1)) + Vnoisegradist; %synaptic + leaky + noise current to Gradistal; neuromodulation
     %%%% currents and other variables for gradistal end %%%%
 
@@ -696,18 +646,19 @@ if param.DistalON == true
          
          %%% turn on/off Imitgraprox, axon collateral
          if param.CollateralON == true
-          ImitgraproxAMPA(:) = SetI(tauPROX1(1),tauPROX2(1),t,tAMPA0mit_gra(:,tt),maxgAMPAgraprox(1),...
-              wMitGraProxAMPA,EAMPAgraprox(1),Vgraprox_nospike(:,tt-1));
-          [ImitgraproxNMDA(:),Mg_block_graprox(:)]= SetI_NMDA(tauNMDA1,tauNMDA2,t,tNMDA0mit_gra(:,tt),maxgNMDAgraprox(1),...
-        wMitGraProxNMDA,ENMDAgraprox(1),Vgraprox_nospike(:,tt - 1),param); %[[Sam]] added nmda
+            ImitgraproxAMPA(:) = SetI(tauPROX1(1),tauPROX2(1),t,tAMPA0mit_gra(:,tt),maxgAMPAgraprox(1),...
+                wMitGraProxAMPA,EAMPAgraprox(1),Vgraprox_nospike(:,tt-1));
+            [ImitgraproxNMDA(:),Mg_block_graprox(:)]= SetI_NMDA(tauNMDA1,tauNMDA2,t,tNMDA0mit_gra(:,tt),maxgNMDAgraprox(1),...
+                wMitGraProxNMDA,ENMDAgraprox(1),Vgraprox_nospike(:,tt - 1),param); %[[Sam]] added nmda
          end
          ImitgraproxAMPA_matrix(:,tt) = ImitgraproxAMPA(:);
          ImitgraproxNMDA_matrix(:,tt) = ImitgraproxNMDA(:);
          Mg_block_graprox_matrix(:,tt) = Mg_block_graprox(:);
          
+         %[Sam] set pcinput
          if param.PCinputON == true && param.ProximalON == true % set PC input to graprox 
-            if strcmp(param.PCtype,'poisson') == true %[7.0] adding PCspike for poisson input
-                pcspikes = rand(param.nGraprox,1) < param.PCparam1 * (param.dt/1000); %[7.0] for poisson, PCparam1 is the firing rate, times param.dt/1000 to get Pfiring within the interval;
+            if strcmp(param.PCtype,'poisson') == true % adding PCspike for poisson input
+                pcspikes = rand(param.nGraprox,1) < param.PCparam1 * (param.dt/1000); %for poisson, PCparam1 is the firing rate, times param.dt/1000 to get Pfiring within the interval;
                 %pcspikes = rand < param.PCparam1 * (param.dt/1000);pcspikes = repmat(pcspikes,param.nGraprox,1); %second way, synchronous poisson arrival
                 I = pcspikes == 1;
                 t0pc_gra(I,tt:end) = t;
@@ -721,20 +672,19 @@ if param.DistalON == true
                 
                 
             elseif strcmp(param.PCtype,'constant') == true
-                Ipcgraprox = wpcinput * (param.PCparam1 * ones(param.nGraprox,1)); %[7.0] weight diagonal matrix dot column vector of strength
+                Ipcgraprox = wpcinput * (param.PCparam1 * ones(param.nGraprox,1)); % weight diagonal matrix dot column vector of strength
                 
-                %Ipcgraprox = SetI_PC(param,tt); %now have arguments param and tt, and only for one time step
             elseif strcmp(param.PCtype,'sine') == true
                 Ipcgraprox = wpcinput * ones(param.nGraprox,1) * (1+param.PCparam1 * sin(2*pi*param.PCparam3/(1000/param.dt)*tt)); %[Sam] PCparam2 is weight coded in wpcinput, PCparam1 is amplitude for the fluctuation, PCparam3 is frequnecy;
             
             end
          end
-         Ipcgraprox_matrix(:,tt)=Ipcgraprox(:); % reversed the equality[7.0]
+         Ipcgraprox_matrix(:,tt)=Ipcgraprox(:); 
          %Vnoisegraprox = param.noisegraprox .* randn(param.nGraprox,1);
          Vnoisegraprox = 0; %[[Sam]] no noise condition
          Vnoisegraprox_matrix(:,tt) = Vnoisegraprox(:);
          IP(:) = ImitgraproxAMPA(:) + Ipcgraprox(:) + (1-param.wMod)*(Restgraprox(:) - Vgraprox(:,tt-1)) + Vnoisegraprox + ImitgraproxNMDA(:);
-         
+         % backward Euler
          Vgraprox(:,tt) = tP*wP/(1+tP*wP+tD*wD) .* (Vgradist(:,tt-1) + tD.*ID(:) + ((1+tD*wD)/wP).*IP(:) + ((1+tD*wD)/(tP*wP)*Vgraprox(:,tt-1)));
          %%%% variables and update V end %%%%
          
@@ -931,6 +881,7 @@ function Iext = SetExtInput(param)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
+% Modified by Sam Zheng
 % This function sets the external input to MCs
 % The main function of this program is NeuroActivity.m
 %
@@ -1066,42 +1017,6 @@ gamma = param.gamma; % by default 0.016
 eta = param.eta; %by default 0.28
 E_Mg = 0; % assuming that Vrest = -70e-3
 
-% % Code for visualizing all the variables of this current
-% t1 = 2;
-% t2 = 75;
-% 
-% t = 0:1:200;
-% 
-% v = (E_Mg-0.1):0.001:(E_Mg+0.1);
-% 
-% g = zeros(length(t), length(v));
-% for i = 1:length(t)
-%     for j = 1:length(v)
-%         g(i,j) = g_norm * (exp(-t(i)/t2) - exp(-t(i)/t1))/(1+eta*Mg_conc*exp(-(v(j)-E_Mg)/gamma));
-%     end
-% end
-% figure(4321)
-% surf(v,t,g, 'FaceColor', 'interp', 'edgecolor', 'none', 'FaceLighting', 'phong')
-% colorbar;
-% camlight left;
-% xlabel('V_M (V)');ylabel('t (ms)');zlabel('Conductance')
-% 
-
-% % variables for debugging
-% tau1 = tauNMDA1(1);
-% tau2 = tauNMDA2(1);
-% t0 = tNMDA0mit_gra(:,tt);
-% W = wMitGradist;
-% E = ENMDAgradist(1);
-% V = Vgradist(:,tt - 1);
-
-% NOTE: If W is Wmitgradist then it has dimensions ngradist x nmit
-
-% g = g_norm * (exp(-(t - t0)./tau1) - exp(-(t - t0)./tau2)); % dim nmit x 1
-% Mg_block = 1./(1+eta*Mg_conc*exp(-(V-E_Mg)/gamma)); % dim ngradist x 1
-% INMDA = (W * g) .* (V-E) .* Mg_block;
-
-% Modified to allow for distributions over tau1 and tau2
 Mg_block = 1./(1+eta*Mg_conc*exp(-(V-E_Mg)/gamma)); % dim ngradist x 1
 
 INMDA = zeros(length(V),1);
@@ -1117,91 +1032,6 @@ end
 
 
 function IVDCC = SetI_VDCC(W,E,V,m,h)
-% L-type HVA Synapse
-% defined as
-% I_L = g*m*h*(V - E_L);
-
-% % Visualize all variables of the current
-% E_L = 0;
-% V = 1e3*((E_L-0.1):0.001:(E_L+0.1)); % in mV
-% 
-% Compare L and N-type Ca models
-% % Look at gating variable m
-% % m' = (mbar - m)/taum;
-% mbarL = 1./(1 + exp(-(V+50)./3));
-% mbarN = 1./(1 + exp(-(V+45)./7));
-% taumL = 18 * exp(-((V+45)./20).^2) + 1.5;
-% taumN = 18 * exp(-((V+70)./25).^2) + 0.3;
-% subplot(2,1,1)
-% plot(V,mbarL,V,mbarN);xlim([-70 0])
-% set(gca,'fontsize',14)
-% legend('L-Type','N-Type','location','best')
-% title('m')
-% subplot(2,1,2)
-% plot(V,taumL,V,taumN);xlim([-70 0])
-% set(gca,'fontsize',14)
-% title('\tau_m (ms)')
-% xlabel('Vm_{GC} (mV)')
-% 
-% % plot N-type and NMDA together
-% v = -0.1:0.001:0.1; % in V
-% Mg_conc = 1;
-% E_Mg = 0;
-% gamma = 0.016;
-% eta = 0.28;
-% Mg_block_original = 1./(1+eta*Mg_conc*exp(-(v-E_Mg)/gamma));
-% 
-% scrsz = get(0,'ScreenSize');
-% figH=figure;
-% set(figH,'position',[0,400,scrsz(3)-0.6*scrsz(3),scrsz(4)-0.7*scrsz(4)]);
-% plot(V,mbarN,'-k',V,Mg_block_original,'.k');xlim([-80 0])
-% set(gca,'fontsize',17)
-% % legend('Bo''s model','NMDA')
-% legend('N-Type','NMDA','location','southeast')
-% legend boxoff
-% xlabel('V_{rest,GC} (mV)');ylabel('Activation')
-
-
-% 
-% subplot(2,1,1)
-% plot(V,mbar);xlim([-70 0])
-% set(gca,'fontsize',17)
-% xlabel('V (mV)');ylabel('Steady state m')
-% subplot(2,1,2)
-% plot(V,taum);xlim([-70 0])
-% set(gca,'fontsize',17)
-% xlabel('V (mV)');ylabel('\tau_{m} (ms)')
-% 
-% % Look at product of gating variables m*h
-% Ccytmin = 0.1;
-% Ccytmax = 0.5; % cytosolic [Ca] varries between 0.1 and 0.5 uM durring oscillations
-% hmax = 0.00045/(0.00045+Ccytmax);
-% hmin = 0.00045/(0.00045+Ccytmin);
-% 
-% plot(V,hmin*mbar,V,hmax*mbar);xlim([-70 0])
-% set(gca,'fontsize',17)
-% legend('m*h_{min}','m*h_{max}')
-% legend boxoff
-% xlabel('V (mV)');ylabel('Steady state m*h')
-
-% Nernst potential for Ca
-% RT = 300*8.31; % J/mole
-% z= 2 ; % Ca ion valence
-% F = 96485; % Faraday constant Coul/mole
-% Cout = 1500;
-% Cin = 0.5;
-% 
-% ECa = (RT/(z*F))*log(Cout/Cin)
-% % ECa = 100 - 130 mV!
-
-
-% I_L = g*m*h*(V - E_L)*s(t);
-% NOTE: W has dimensions ngradist x nmit
-% m has dimensions ngradist x 1
-
-% Cin = 0.25; % cytosolic Ca concentration (uM)
-% Cin = Cin(1);
-% h = 0.00045/(0.00045+Cin);
 
 IVDCC = zeros(length(V),1);
 for ii = 1:length(V)
@@ -1215,7 +1045,7 @@ end
 
 function P = Prelease(C,B,T,R)
 % GABA release probablity
-% 
+% Modified by Sam Zheng
 % Boleslaw Osinski
 % March 2015
 
@@ -1224,6 +1054,7 @@ function P = Prelease(C,B,T,R)
 % C - [Ca]
 % B - baseline [Ca]
 % T - threshold for maximum GABA release
+% R - additional term for data fitting, no longer in use [Sam]
 P = (C - B - R) ./ (T - B - R);
 % P = C ./ T;
 J = P <= 0;
@@ -1279,31 +1110,4 @@ end
 
 end
 
-%%%%%%%%%%%%%%%%Sam's functions%%%%%%%%%%%%%
-%%%%set top down input to granule cells
 
-function Ic = SetI_PC(param,tt)
-
-Ic = zeros(param.nGraprox,round(param.tsim / param.dt));
-W = 0.001*(sort(rand(param.nGraprox,1),'descend'))+param.Wmin;
-graproxlist = 1:param.nGraprox;
-timerange = round(param.tinit / param.dt : round (param.tfinal / param.dt));
-phasedistribution = zeros(param.nGraprox,1);
-if param.PCparam3 ~= 0
-    unsync = datasample(graproxlist,param.nGraprox * param.PCparam3); %choose the ones receiving unsynchronous pcinput
-    sync = graproxlist(find(ismember(graproxlist,unsync)));
-    phasedistribution(unsync,:) = param.PCparam4 * randn(length(unsync),1);
-end
-
-
-
-if strcmp(param.PCtype,'sine')
-    Ic(:,timerange) = (1/2 * param.PCparam1 * sin(2*pi*param.PCparam2 / (1/(param.dt/1000))* timerange + phasedistribution + 1.54) + param.PCparam1 +param.PCnoise*randn) .* W;
-end
-
-
-    
-    
-    
-
-end
