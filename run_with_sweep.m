@@ -62,7 +62,8 @@ pcparam2slider = [15]; %since 15 mit onto 1 gra
 pcparam3slider = [0.8];
 pcparam4slider = [5];
 
-pctypeslider = ["poisson"];
+%pctypeslider = ["poisson"]; "" might cause problem for earlier versions of
+%matlab
 etaslider = 0.28;% linspace(0.05,0.25,5);
 Vgcdslider = -0.074;
 Vgcpslider = -0.074;
@@ -128,7 +129,9 @@ for i=1:length(slider.value)
 %             param.Inoise = 0.1*noiseslider(1);
             
             param.PCinputON = false;
-            param.PCtype = pctypeslider(1);
+            %param.PCtype = pctypeslider(1); %commented out because double
+            %quotation in pctypeslider might cause a problem in earlier
+            %versions of matlab
             param.PCparam1 = pcparam1slider(1);
             param.PCparam2 = pcparam2slider(1);
             param.PCparam3 = pcparam3slider(1);
