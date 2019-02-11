@@ -13,13 +13,13 @@ Code is designed to run in MATLAB R2018a. Some functions require `Curve Fitting 
 - To run it with single/multiple-parameter sweep, run the script `run_with_sweep.m` and follow the detailed instruction inside the script.    
 
 ## Main functions
-`InitNetwork_GCE.m`         -       initialize simulation parameters.     
+- `InitNetwork_GCE.m`         -       initialize simulation parameters.     
 
-`OB_network_GCE.m`          -       generate and initialize structs for neurons and network parameters.   
+- `OB_network_GCE.m`          -       generate and initialize structs for neurons and network parameters.   
 
-`NeuroActivity.m`           -       run the simulation, update the values for the neurons structs and generate a struct for synaptic current.   
+- `NeuroActivity.m`           -       run the simulation, update the values for the neurons structs and generate a struct for synaptic current.   
 
-`IandVLFP_GCE.m`            -       wrapper function for generating LFP from the outputs of `NeuroActivity.m`
+- `IandVLFP_GCE.m`            -       wrapper function for generating LFP from the outputs of `NeuroActivity.m`
 
 
 ## Author & Acknowledgement
