@@ -21,7 +21,7 @@ To run it with single/multiple-parameter sweep, run the script `run_with_sweep.m
 
 
 ## Author & Acknowledgement
-This model is adapted from the one used by Osinski & Kay (2015). [LINK]https://github.com/boleszek/GCExcitability   
+This model is adapted from the one used by Osinski & Kay (2015). https://github.com/boleszek/GCExcitability   
 
 The main function for network activity is broken into two files (`OB_network_GCE.m`, `NeuroActivity.m`) to fascilitate parameter sweep. They are modified to include a second compartment of the granule cell and top down input from the piriform cortex and cholinergic modulation. The numerical integration scheme is changed for better stability.
 
