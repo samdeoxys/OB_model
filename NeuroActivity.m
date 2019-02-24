@@ -635,7 +635,7 @@ if param.DistalON == true
     Imodgradist_matrix(:,tt) = Imodgradist;
    
     %fill in helper variable ID
-    ID(:) = ImitgradistAMPA(:) + ImitgradistNMDA(:) + (ImitgradistVDCC(:) - IVDCCBase) + (1-param.wMod)*(Restgradist(:) +Imodgradist - Vgradist(:,tt - 1)) + Vnoisegradist; %synaptic + leaky + noise current to Gradistal; neuromodulation
+    ID(:) = ImitgradistAMPA(:) + ImitgradistNMDA(:) + (ImitgradistVDCC(:) - IVDCCBase) + Imodgradist + (1-param.wMod)*(Restgradist(:) - Vgradist(:,tt - 1)) + Vnoisegradist; %synaptic + leaky + noise current to Gradistal; neuromodulation
     %%%% currents and other variables for gradistal end %%%%
 
      % Get Proximal Granule input to Distal Granule Dendrites [[[====================Sam==================]]]
@@ -683,7 +683,12 @@ if param.DistalON == true
          %Vnoisegraprox = param.noisegraprox .* randn(param.nGraprox,1);
          Vnoisegraprox = 0; %[[Sam]] no noise condition
          Vnoisegraprox_matrix(:,tt) = Vnoisegraprox(:);
-         IP(:) = ImitgraproxAMPA(:) + Ipcgraprox(:) + (1-param.wMod)*(Restgraprox(:) - Vgraprox(:,tt-1)) + Vnoisegraprox + ImitgraproxNMDA(:);
+         
+         % [Sam] modulation current (testing)
+         Imodgraprox = param.gMod.*(param.EMod - Vgraprox(:,tt-1));
+         Imodgraprox_matrix(:,tt) = Imodgraprox;
+         
+         IP(:) = ImitgraproxAMPA(:) + Ipcgraprox(:) + (1-param.wMod)*(Restgraprox(:) - Vgraprox(:,tt-1)) + Imodgraprox + Vnoisegraprox + ImitgraproxNMDA(:);
          % backward Euler
          Vgraprox(:,tt) = tP*wP/(1+tP*wP+tD*wD) .* (Vgradist(:,tt-1) + tD.*ID(:) + ((1+tD*wD)/wP).*IP(:) + ((1+tD*wD)/(tP*wP)*Vgraprox(:,tt-1)));
          %%%% variables and update V end %%%%
@@ -844,6 +849,7 @@ if param.DistalON == true
     InputCurrent.ImitgradistVDCC = ImitgradistVDCC_matrix;
     InputCurrent.Vnoisegradist = Vnoisegradist_matrix; %[Sam]
     InputCurrent.Imodgradist = Imodgradist_matrix; %[Sam]
+    InputCurrent.Imodgraprox = Imodgraprox_matrix; %[Sam]
     
     InputCurrent.Mg_block_gradist = Mg_block_gradist_matrix; %[Sam]
     

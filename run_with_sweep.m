@@ -69,7 +69,8 @@ Vgcdslider = -0.074;
 Vgcpslider = -0.074;
 Vrestslider = -0.074;%[-0.06,-0.055,-0.05,-0.04,-0.03];%[-0.074 -0.054];
 wmodslider = 0;%[0.55,0.58,0.6];%[0.62 0];
-gmodslider = [0.22,0.24,0.26];
+gmodslider = [-0.62];
+emodslider = [-0.074];
 %wmod_vrestslider = [Vrestslider;wmodslider];
 %gmod_gabaslider = [gmodslider;gabaslider];
 
@@ -139,6 +140,7 @@ for i=1:length(slider.value)
             
             param.wMod = wmodslider(1);
             param.gMod = gmodslider(i);
+            param.EMod = emodslider(1);
             %% Run and plot
             [Mitral GraProximal GraDistal param InputCurrent MitLFPs GraDistLFPs] = ...
                         IandVLFP_GCE(Mitral,GraProximal,GraDistal,param);
