@@ -1,0 +1,18 @@
+%%%%% --Sam Zheng 2019--
+%%%%% Script for running the simulation once with a specified input_file,
+%%%%% and plot the powerspectrum
+input_file = 'OB_params_GCE.txt';
+%% Run Simulation
+clear Mitral GraProximal GraDistal param MitLFPs GraDistLFPs
+[dt,tsim,ntp,nmit,ngradist,ngraprox,sampf,timevec] ...
+    = InitNetwork_GCE(input_file);
+[Mitral GraProximal GraDistal param] = OB_network_GCE(input_file);
+param.PCinputON = true;
+[Mitral GraProximal GraDistal param InputCurrent MitLFPs GraDistLFPs] = ...
+    IandVLFP_GCE(Mitral,GraProximal,GraDistal,param);
+%% Plot Power Spectrum
+figH = plot_power(MitLFPs,GraDistLFPs,sampf,timevec);
+     
+                 
+                    
+              
